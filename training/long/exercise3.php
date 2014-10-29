@@ -1,42 +1,76 @@
 <?php
-function fixPath($arr){
-	$path="/";
+/*
+Date : 2014年10月27日
+@author LongTa
+checkSamePath関数
+	渡された２つのパスが同じ場所を指しているかチェックする関数。
+	同じパスなら “Match”, 異なるパスなら “Not Match”を表示する。
+*/
+
+/**
+* パス編集
+*　	/ab/cd../ef -> /ab/ef
+*　	/ab/cd/./ef -> /ab/cd/ef
+* @param　$path
+* @return 「./」と「../」編集されたパス 
+*/
+function fixPath ($_path) {
+	
+	$arr      = explode ("/",$_path); // 「/」で区切り
+	$path     = "/";
 	$arrFixed = array();
-	$i=0;
+	$i        = 0;
+	
 	foreach($arr as &$dir){
-		if($i>=1){
-			if(strcmp($dir,".")==0){
+		if ($i>=1) {
+			// 「./」　＝＞むし
+			if ( strcmp($dir,".") == 0 ){
 				$path=$path;
-			} else if (strcmp($dir,"..")==0){
+			}
+			// 「../」＝＞親もディレクトリになる
+			else if ( strcmp($dir,".." ) == 0 ){
 				array_pop($arrFixed);
-			} else {
+			} 
+			// 以外はそのまま
+			else {
 				array_push($arrFixed,$dir);
 			}
 		}
 		$i++;
 	}
 	
-	print_r($arrFixed);
-	$path .=implode ( "/",$arrFixed);
+	$path .=implode ( "/",$arrFixed);// array -> string 
 	return $path;
 }
 
+/**
+* パス比較
+* @param　$path１
+* @param　$path2
+* @return 同じパス＝＞true,逆にfalse 
+*/
 function checkSamePath($path1,$path2) {
-  $arr1 = explode ("/",$path1);
-  $arr2 = explode ("/",$path2);
-  $p1 = fixPath($arr1);
-  echo "$p1</br>";
-  $p2 = fixPath($arr2);
-  echo "$p2</br>";
-  if(!strcmp($p1,$p2)){
-	echo "Match";
-	return true;
-  }else{
-  echo "NotMatch";
-	return false;
+	
+	$p1   = fixPath($path1);
+	$p2   = fixPath($path2);
+	
+	if(!strcmp($p1,$p2)){
+		return true;
+	}else{
+		return false;
 	}
 }
-$str="Hello Jason, how are you?";
-echo checkSamePath("/./home/user/../admin/./index.html","/home/admin/public_html/../index.html");
- 
+
+// テスト
+if ( checkSamePath("/./home/user/../admin/./index.html","/home/admin/public_htmla/../indexa.html") ) {
+	echo "Match</br>";
+} else {
+	echo "NotMatch</br>";
+}
+if ( checkSamePath("/../home/user/../admin/./index.html","/home/admin/public_htmla/../index.html") ) {
+	echo "Match</br>";
+} else {
+	echo "NotMatch</br>";
+}
+
 ?>
