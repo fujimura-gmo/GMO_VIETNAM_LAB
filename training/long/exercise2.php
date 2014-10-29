@@ -7,6 +7,12 @@ insertNum関数
 	挿入ルールは、最初に"1",1文字あけて"2",2文字あけて"3",...
 	最後はあける文字数によらず数字で終わらせる。
 */
+
+/**
+* 数字を追加
+* @param　$str 入力String
+* @return 数字が追加されたString 
+*/
 function insertNumber($str) {
   $len     = strlen($str);
   $index   = 1;
