@@ -1,0 +1,21 @@
+VAGRANTFILE_API_VERSION = "2" 
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.define :develop do |develop|
+    develop.vm.box = "develop"
+    develop.vm.hostname = "develop"
+    develop.vm.network :private_network, ip: "192.168.33.10"
+    develop.vm.synced_folder "application", "/var/www/application/current"
+  end
+  config.vm.define :ci do |ci|
+    ci.vm.box = "ci"
+    ci.vm.hostname = "ci"
+    ci.vm.network :private_network, ip: "192.168.33.100"
+  end
+  config.vm.define :deploy do |deploy|    
+    deploy.vm.box = "deploy"
+    deploy.vm.hostname = "deploy"
+    deploy.vm.network :private_network, ip:"192.168.33.200"    
+  end
+end
