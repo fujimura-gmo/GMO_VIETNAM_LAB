@@ -1,5 +1,18 @@
 <?php
+/*
+Date : 2014年10月31日
+@author TuanNA
+checkSamePath関数
+	渡された２つのパスが同じ場所を指しているかチェックする関数。
+	同じパスなら “Match”, 異なるパスなら “Not Match”を表示する。
+*/
 
+/**
+* 二つのパスを比べる
+* @param　$pathA パスA
+* @param　$pathB　パスB
+* @return パスAとパスBが同じ　＝＞true,　逆にfalse 
+*/
 function checkSamePath($pathA, $pathB) {
 	$dir_name_arrA = getDirNameArrFromPath($pathA);	
 	$dir_name_arrB = getDirNameArrFromPath($pathB);
@@ -15,6 +28,11 @@ function checkSamePath($pathA, $pathB) {
 	}
 }
 
+/**
+* パス文字例から配列のディレクトリィ名を取得する
+* @param　$path パス文字例
+* @return 配列のディレクトリィ名
+*/
 function getDirNameArrFromPath($path) {
 	$name_list = explode("/", $path);
 	$dir_name_arr = array();
