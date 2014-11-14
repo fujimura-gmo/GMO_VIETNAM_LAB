@@ -13,9 +13,24 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # config.vm.box = "opscode_unbuntu14"
   config.vm.define "develop" do |develop|
       develop.vm.box = "opscode_unbuntu14"
-      develop.vm.network :private_network, ip: "192.168.33.10"     
+      develop.vm.network :private_network, ip: "192.168.33.10"
+      develop.vm.synced_folder ".", "/var/www/application/current", :create => true, :mount_options => ["dmode=777","fmode=777"]
       develop.vm.host_name = "develop"
   end
+
+  #config.vm.define "ci" do |ci|
+  #    ci.vm.box = "opscode_unbuntu14"
+  #    ci.vm.network :private_network, ip: "192.168.33.100"
+  #    ci.vm.synced_folder ".", "/var/www/application/current", :create => true, :mount_options => ["dmode=777","fmode=777"]
+ #     ci.vm.host_name = "ci"
+ # end
+
+ #config.vm.define "deploy" do |deploy|
+ #    deploy.vm.box = "opscode_unbuntu14"
+ #    deploy.vm.network :private_network, ip: "192.168.33.200"
+ #    deploy.vm.synced_folder ".", "/var/www/application/current", :create => true, :mount_options => ["dmode=777","fmode=777"]
+ #    deploy.vm.host_name = "deploy"
+ #end
 
 
   # The url from where the 'config.vm.box' box will be fetched if it
