@@ -1,0 +1,30 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+# HieuTT - w2-4 - vagrantfile
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  #develop 
+  config.vm.define "develop" do |develop| 
+    develop.vm.box = "ubuntu1404"
+    develop.vm.network "private_network", ip: "192.168.33.10"
+    develop.vm.host_name = "develop"
+  end  
+
+  #ci
+  config.vm.define "ci" do |ci|
+    ci.vm.box = "ubuntu1404"
+    ci.vm.network :private_network, ip: "192.168.33.100"
+    ci.vm.host_name = "ci"
+  end
+
+  #deploy
+  config.vm.define "deploy" do |deploy|
+    deploy.vm.box = "ubuntu1404"
+    deploy.vm.network :private_network, ip: "192.168.33.200"
+    deploy.vm.host_name = "deploy"
+  end
+
+end
