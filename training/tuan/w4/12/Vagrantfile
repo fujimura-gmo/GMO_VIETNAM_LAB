@@ -1,0 +1,135 @@
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  #define develop machine
+  config.vm.define "develop" do |develop|
+	
+	#make sure either chef-solo or chef-client is installed
+	develop.omnibus.chef_version = :latest
+	
+	#Box name
+  	develop.vm.box = "ubuntu-14.04"
+	
+	#Host name
+	develop.vm.hostname = "develop"
+	
+	# Create a private network, which allows host-only access to the machine
+	# using a specific IP.
+	develop.vm.network "private_network", ip: "192.168.33.10"
+	
+	#Share application folder
+	develop.vm.synced_folder "./application", "/var/www/application/current"
+	
+	develop.vm.provision :chef_solo do |chef|
+		chef.log_level = "debug"
+		chef.cookbooks_path = "./cookbooks"
+		chef.json = {
+			nginx: {
+				docroot: {
+					owner: "vagrant",
+					group: "vagrant",
+					path: "/var/www/application/current/app/webroot",
+					force_create: true
+				}, 
+				default: { 
+					fastcgi_params: { CAKE_ENV: "development" } 
+				},
+				test: { 
+					available: true,
+					fastcgi_params: { CAKE_ENV: "test" } 
+				} 			
+			} 
+		} 
+		chef.run_list = %w[ 
+			recipe[apt] 
+			recipe[phpenv::default]
+		]
+	end			
+	
+  end
+  
+  #define ci machine
+  config.vm.define "ci" do |ci|
+  
+	#make sure either chef-solo or chef-client is installed
+	ci.omnibus.chef_version = :latest
+  
+	#Box name
+  	ci.vm.box = "ubuntu-14.04"
+	
+	#Host name
+	ci.vm.hostname = "ci"
+	
+	# Create a private network, which allows host-only access to the machine
+	# using a specific IP.
+	ci.vm.network "private_network", ip: "192.168.33.100"
+  
+	ci.vm.provision :chef_solo do |chef|
+		chef.log_level = "debug"
+		chef.cookbooks_path = "./cookbooks"
+		chef.json = {
+			nginx: {
+				docroot: {
+					path: "/var/lib/jenkins/jobs/blogapp/workspace/app/webroot",
+				},
+				default: { 
+					fastcgi_params: { CAKE_ENV: "development" }
+				},
+				test: {
+					available: true,
+					fastcgi_params: { CAKE_ENV: "ci" }
+				}
+			}
+		}
+		chef.run_list = %w[
+			recipe[apt]
+			recipe[phpenv::default]
+			recipe[jenkins::default]
+			recipe[jenkins::plugin]
+		]
+    end
+  
+  end
+  
+  #define deploy machine
+  config.vm.define "deploy" do |deploy|
+
+	#make sure either chef-solo or chef-client is installed
+	deploy.omnibus.chef_version = :latest
+  
+	#Box name
+  	deploy.vm.box = "ubuntu-14.04"
+	
+	#Host name
+	deploy.vm.hostname = "deploy"
+	
+	# Create a private network, which allows host-only access to the machine
+	# using a specific IP.
+	deploy.vm.network "private_network", ip: "192.168.33.200"
+	
+	deploy.vm.provision :chef_solo do |chef|
+		chef.log_level = "debug"
+		chef.cookbooks_path = "./cookbooks"
+		chef.json = {
+			nginx: {
+				docroot: {
+					owner: "vagrant", 
+					group: "vagrant", 
+					path: "/var/www/application/current/app/webroot",
+				},
+				default: { 
+					fastcgi_params: {  CAKE_ENV: "production" }
+				}
+			}
+		}
+	
+		chef.run_list = %w[
+			recipe[apt]
+			recipe[phpenv::default]
+		]
+    end
+	
+  end
+
+end
