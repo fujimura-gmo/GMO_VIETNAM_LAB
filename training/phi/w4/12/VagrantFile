@@ -70,7 +70,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 		path: "/var/www/application/current/app/webroot", force_create: true
 	}, 
 	default: {
-		fastcgi_params: { CAKE_ENV: "development" } },
+		fastcgi_params: { CAKE_ENV: "production" } },
 	test: {
 		available: true,
 		fastcgi_params: { CAKE_ENV: "test" }
