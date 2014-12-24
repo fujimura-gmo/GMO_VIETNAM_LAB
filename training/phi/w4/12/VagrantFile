@@ -1,0 +1,84 @@
+VAGRANTFILE_API_VERSION = "2" 
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.define :develop do |develop|
+    develop.vm.box = "opscode_box"
+    develop.vm.hostname = "develop"
+    develop.vm.network :private_network, ip: "192.168.33.10"
+    develop.vm.synced_folder "application", "/var/www/application/current"
+    develop.vm.provision :chef_solo do |chef| 
+	chef.log_level = "debug" 
+	chef.cookbooks_path = "./cookbooks" 
+	chef.json = {
+		nginx: { docroot: {
+		owner: "vagrant",
+		group: "vagrant",
+		path: "/var/www/application/current/app/webroot", force_create: true
+	}, 
+	default: {
+		fastcgi_params: { CAKE_ENV: "development" } },
+	test: {
+		available: true,
+		fastcgi_params: { CAKE_ENV: "test" }
+	}	 }
+	}
+	chef.run_list = %w[
+		recipe[apt]
+	recipe[phpenv::default]]
+  end	
+  end
+  config.vm.define :ci do |ci|
+    ci.vm.box = "opscode_box"
+    ci.vm.hostname = "ci"
+    ci.vm.network :private_network, ip:"192.168.33.100"
+    ci.vm.provision :chef_solo do |chef|
+      chef.log_level = "debug"
+      chef.cookbooks_path = "./cookbooks"
+      chef.json = {
+        nginx: {
+          docroot: {
+            path: "/var/lib/jenkins/jobs/blogapp/workspace/app/webroot",
+          },
+          default: { 
+            fastcgi_params: { CAKE_ENV: "development" }
+          },
+          test: {
+            available: true,
+            fastcgi_params: { CAKE_ENV: "ci" }
+          }
+        }
+      }
+      chef.run_list = %w[
+        recipe[apt]
+        recipe[jenkins::default]        
+        recipe[jenkins::plugin]
+      ]
+  end
+  end
+  config.vm.define :deploy do |deploy|    
+    deploy.vm.box = "opscode_box"
+    deploy.vm.hostname = "deploy"
+    deploy.vm.network :private_network, ip:"192.168.33.200"    
+	deploy.vm.provision :chef_solo do |chef| 
+	chef.log_level = "debug" 
+	chef.cookbooks_path = "./cookbooks" 
+	chef.json = {
+		nginx: { docroot: {
+		owner: "vagrant",
+		group: "vagrant",
+		path: "/var/www/application/current/app/webroot", force_create: true
+	}, 
+	default: {
+		fastcgi_params: { CAKE_ENV: "development" } },
+	test: {
+		available: true,
+		fastcgi_params: { CAKE_ENV: "test" }
+	}	 }
+	}
+	chef.run_list = %w[
+		recipe[apt]
+	recipe[phpenv::default]]
+  end
+  end
+end
