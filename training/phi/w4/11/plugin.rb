@@ -1,55 +1,20 @@
-bash "download dependencies plugin" do
- cwd "/var/lib/jenkins/plugins"
- code <<-EOH
- wget http://updates.jenkins-ci.org/latest/analysis-core.hpi
- wget http://updates.jenkins-ci.org/latest/git-client.hpi
- wget http://updates.jenkins-ci.org/latest/scm-api.hpi
- wget http://updates.jenkins-ci.org/latest/matrix-project.hpi
- EOH
+directory "/var/lib/jenkins/updates" do
+  owner "jenkins"
+  group "jenkins"
+  action :create
 end
-
-execute "insall-plugin-Git" do
- cwd "/var/lib/jenkins/plugins"
- command "wget http://updates.jenkins-ci.org/latest/git.hpi"
+execute "update jenkins update center" do
+ command "wget http://updates.jenkins-ci.org/update-center.json -qO- | sed '1d;$d'  > /var/lib/jenkins/updates/default.json"
+ user 'jenkins'
+ group 'jenkins'
  action :run
 end
 
-execute "insall plugin xUnit" do
- cwd "/var/lib/jenkins/plugins"
- action :run
- command "wget http://updates.jenkins-ci.org/latest/xunit.hpi"
+%w{git checkstyle cloverphp dry pmd htmlpublisher xunit}.each do |plugin_name|
+e = execute "sudo /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar  -s http://localhost:8080 install-plugin ".concat(plugin_name) do
+action :run
 end
-
-execute "insall plugin CheckStyle" do
- cwd "/var/lib/jenkins/plugins"
- action :run
- command "wget http://updates.jenkins-ci.org/latest/checkstyle.hpi"
 end
-
-execute "/var/lib/jenkins/plugins" do
- cwd "/var/lib/jenkins/plugins"
- action :run
- command "wget http://updates.jenkins-ci.org/latest/pmd.hpi"
-end
-
-execute "insall plugin CloverPHP" do
- cwd "/var/lib/jenkins/plugins"
- action :run
- command "wget http://updates.jenkins-ci.org/latest/cloverphp.hpi"
-end
-
-execute "insall plugin DRY" do
- cwd "/var/lib/jenkins/plugins"
- action :run
- command "wget http://updates.jenkins-ci.org/latest/dry.hpi"
-end
-
-execute "insall plugin HTML Publisher" do
- cwd "/var/lib/jenkins/plugins"
- action :run
- command "wget http://updates.jenkins-ci.org/latest/htmlpublisher.hpi"
-end
-
 service "jenkins" do
   action :restart
 end

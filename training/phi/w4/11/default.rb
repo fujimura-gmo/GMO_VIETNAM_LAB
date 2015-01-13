@@ -7,7 +7,9 @@ apt_repository "jenkins" do
   action :add
 end
  
-package "jenkins"
+package "jenkins" do
+ action:install
+end
  
 service "jenkins" do
   supports [:stop, :start, :restart]
