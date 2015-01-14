@@ -1,0 +1,6 @@
+jenkins_plugin 'git'
+jenkins_plugin 'xunit'
+jenkins_plugin 'pmd'
+jenkins_plugin 'cloverphp'
+jenkins_plugin 'dry'
+jenkins_plugin 'htmlpublisher'
